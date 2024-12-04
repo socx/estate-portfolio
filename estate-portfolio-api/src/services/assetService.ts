@@ -44,6 +44,14 @@ const getAssetFromModel = (assetModel: any) => {
   return asset;
 }
 
+const getAssetsFromModel = (assetModels: any[]) : Asset[] => {
+  const asset: Asset[]  = [];
+  assetModels.forEach((assetModel) => {
+    asset.push(getAssetFromModel(assetModel))
+  });
+  return asset;
+}
+
 export const insertAsset = async (
     asset: Asset,
   ) : Promise<Asset | null> => {
@@ -61,4 +69,9 @@ export const updateAsset = async (
 export const getAssetById = async (_id: string) : Promise<Asset | null> => {
   const assetModel = await AssetModel.findById({_id});
   return assetModel ? getAssetFromModel(assetModel as any) : null;
+}
+
+export const getUserAssets = async (userId: string) : Promise<Asset[] | null> => {
+  const assetModels = await AssetModel.find({ users: { $in: [userId]} });
+  return assetModels && assetModels.length > 0 ? getAssetsFromModel(assetModels) : [];
 }

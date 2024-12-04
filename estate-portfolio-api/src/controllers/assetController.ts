@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { Asset } from '../interfaces/assetInterfaces';
-import { getAssetById, insertAsset, updateAsset } from '../services/assetService';
+import { getAssetById, getUserAssets, insertAsset, updateAsset } from '../services/assetService';
 import { getUserFromToken } from '../services/userServices';
 
 export const createAsset = async (req: Request, res: Response) => {
@@ -67,7 +67,15 @@ export const linkUserAssets = async (req: Request, res: Response) => {
     return linkedAssets.length > 0 ?
       res.status(StatusCodes.OK).json({message: `User linked to (${linkedAssets.length}) assets successfully`, linkedAssets}) :
       res.status(StatusCodes.OK).json({message: 'Assets ids not returned'});
-
   }
   return res.status(StatusCodes.BAD_REQUEST);
+}
+
+export const getLinkedUserAssets = async  (req: Request, res: Response) => {
+  const user = await getUserFromToken(req);
+  if (user && user.id) {
+    const assets = await getUserAssets(user.id);
+    return res.status(StatusCodes.OK).json({ message: 'Found user assets successfully', assets });
+  }
+  return res.status(StatusCodes.UNAUTHORIZED);
 }
