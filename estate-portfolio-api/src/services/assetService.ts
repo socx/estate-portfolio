@@ -1,4 +1,5 @@
 import { Asset } from "../interfaces/assetInterfaces";
+
 import { AssetModel } from "../models/assetModel";
 
 
@@ -16,10 +17,12 @@ const getAssetFromModel = (assetModel: any) => {
     investment,
     periodicIncome,
     shareholders,
+    users,
     createdAt,
     updatedAt,
     deletedAt
-  } = assetModel
+  } = assetModel;
+  
   const asset: Asset = {
     id: _id ? _id.toString() : null,
     type,
@@ -33,6 +36,7 @@ const getAssetFromModel = (assetModel: any) => {
     investment,
     periodicIncome,
     shareholders,
+    users,
     createdAt: createdAt ? createdAt.toISOString() : null,
     updatedAt: updatedAt ? updatedAt.toISOString() : null,
     deletedAt: deletedAt ? deletedAt.toISOString() : null,
@@ -40,11 +44,21 @@ const getAssetFromModel = (assetModel: any) => {
   return asset;
 }
 
-export const saveAsset = async (
+export const insertAsset = async (
     asset: Asset,
-  ) : Promise<Asset> => {
-    console.log('Inside service ===> ')
-    console.log({...asset})
-  const newAsset = await AssetModel.create({...asset});
-  return getAssetFromModel(newAsset.toObject());
+  ) : Promise<Asset | null> => {
+  const savedAsset = await AssetModel.create({...asset});
+  return savedAsset ? getAssetFromModel(savedAsset.toObject()) : null;
+}
+
+export const updateAsset = async (
+  id: string, fieldsToUpdate: any
+) : Promise<Asset | null> => {
+  const assetToUpdate = await AssetModel.findByIdAndUpdate(id, fieldsToUpdate, { new: true });
+  return assetToUpdate ? getAssetFromModel(assetToUpdate.toObject()) : null;
+}
+
+export const getAssetById = async (_id: string) : Promise<Asset | null> => {
+  const assetModel = await AssetModel.findById({_id});
+  return assetModel ? getAssetFromModel(assetModel as any) : null;
 }

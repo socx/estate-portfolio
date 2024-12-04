@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 import { AddressSchema } from "./addressModel";
 import { BusinessEntitySchema } from "./businessEntityModel";
+import { UserSchema } from "./userModel";
 
 
 const AssetValueSchema = new mongoose.Schema({
@@ -31,7 +32,7 @@ const PeriodicIncomeSchema = new mongoose.Schema({
 });
 
 
-const AssetSchema = new mongoose.Schema(
+export const AssetSchema = new mongoose.Schema(
   {
     type: {
       type: String,
@@ -47,6 +48,7 @@ const AssetSchema = new mongoose.Schema(
     minimumEquity: Number,
     periodicIncome: PeriodicIncomeSchema,
     shareholders: [ShareholdingSchema],
+    users: [String],
     createdAt: {
       type: Date,
       default: Date.now

@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 import { Asset } from '../interfaces/assetInterfaces';
-import { saveAsset } from '../services/assetService';
+import { getAssetById, insertAsset, updateAsset } from '../services/assetService';
+import { getUserFromToken } from '../services/userServices';
 
 export const createAsset = async (req: Request, res: Response) => {
 
@@ -17,22 +18,9 @@ export const createAsset = async (req: Request, res: Response) => {
     financeProvider,
     investment,
     periodicIncome,
-    shareholders
+    shareholders,
+    users,
   } = req.body;
-
-  console.log({
-    type,
-    acquisitionDate,
-    acquisitionPrice,
-    address,
-    marketValue,
-    minimumEquity,
-    financeOutstanding,
-    financeProvider,
-    investment,
-    periodicIncome,
-    shareholders
-  })
     
   // call asset service
   const asset: Asset = {
@@ -46,12 +34,40 @@ export const createAsset = async (req: Request, res: Response) => {
     marketValue,
     minimumEquity,
     periodicIncome,
-    shareholders
+    shareholders,
+    users,
   };
-  const savedAsset = await saveAsset(asset);
+  const savedAsset = await insertAsset(asset);
   if (savedAsset) {
     // TODO call email service to alert of creation of new asset.
     return res.status(StatusCodes.OK).json({message: 'Asset saved successfully', savedAsset});
   }
   return res.status(StatusCodes.CREATED).json({message: `Could not save asset...`});
 };
+
+export const linkUserAssets = async (req: Request, res: Response) => {
+  const { assetIds } = req.body;
+
+  const user = await getUserFromToken(req);
+  if (user && user.id) {
+    // get all the assets
+    const linkedAssets: string[] = [];
+    for (let i = 0; i < assetIds.length; i++) {
+      let asset = await getAssetById(assetIds[i]);
+      if (asset) {
+        const users: string[] = asset.users ? [...asset.users] : [];
+        users.push(user.id);
+        const linkedAsset = await updateAsset(asset.id as string, { users });
+        if (linkedAsset && linkedAsset.id) {
+          linkedAssets.push(linkedAsset.id);
+        }
+      }
+    }
+    
+    return linkedAssets.length > 0 ?
+      res.status(StatusCodes.OK).json({message: `User linked to (${linkedAssets.length}) assets successfully`, linkedAssets}) :
+      res.status(StatusCodes.OK).json({message: 'Assets ids not returned'});
+
+  }
+  return res.status(StatusCodes.BAD_REQUEST);
+}

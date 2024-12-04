@@ -36,6 +36,7 @@ export interface BaseAsset {
   marketValue?: AssetValue,
   minimumEquity?: Number,
   shareholders?: [Shareholding],
+  users?: string [],
   createdAt?: string,
   updatedAt?: string,
   deletedAt?: string,
