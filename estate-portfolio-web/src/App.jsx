@@ -40,6 +40,10 @@ function App() {
 
           <Route exact path="/dashboard" element={<Dashboard />} />
           <Route exact path="/onboarding" element={<Onboarding />} />
+          <Route exact path="/onboarding/options" element={<Onboarding />} />
+          <Route exact path="/onboarding/asset-class" element={<Onboarding />} />
+          <Route exact path="/onboarding/address" element={<Onboarding />} />
+          <Route exact path="/onboarding/finance" element={<Onboarding />} />
 
 
           <Route path="*" element={<PageNotFound />} />
